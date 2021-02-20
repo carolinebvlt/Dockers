@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+
+    db_wp_test:
+
+        image: mysql:5.6
+
+        volumes:
+            - ./db_data:/var/lib/mysql
+
+        ports:
+            - 3307:3306
+
+        environment:
+
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=wordpress_test
+            - MYSQL_USER=wp_user
+            - MYSQL_PASSWORD=wp_pswd
+
+    phpmyadmin:
+
+        image: phpmyadmin/phpmyadmin
+
+        depends_on:
+            - db_wp_test
+
+        ports:
+            - 8181:80
+
+        environment:
+
+            - MYSQL_ROOT_PASSWORD=root
+            - PMA_HOST=db_wp_test
+            - MYSQL_USER=wp_user
+            - MYSQL_PASSWORD=wp_pswd
+
+    wordpress:
+
+        depends_on:
+            - db_wp_test
+
+        image: wordpress:latest
+
+        ports:
+            - 8082:80
+
+        environment:
+            WORDPRESS_DB_HOST: db_wp_test
+            WORDPRESS_DB_USER: wp_user
+            WORDPRESS_DB_PASSWORD: wp_pswd
+            WORDPRESS_DB_NAME: wordpress_test
+
+        volumes:
+            - ./wordpress-files:/var/www/html
